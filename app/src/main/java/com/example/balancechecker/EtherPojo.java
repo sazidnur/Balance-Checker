@@ -1,6 +1,6 @@
 package com.example.balancechecker;
 
-public class PostPojo {
+public class EtherPojo {
     private String status;
     private String message;
     private String result;

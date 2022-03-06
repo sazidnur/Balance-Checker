@@ -8,5 +8,8 @@ import retrofit2.http.QueryMap;
 
 public interface ApiInterface {
     @GET("api")
-    Call<PostPojo> getBalance(@QueryMap Map<String, String> options);
+    Call<EtherPojo> getBalance(@QueryMap Map<String, String> options);
+
+    @GET("data/price")
+    Call<CurrencyPojo> getCurrencyRate(@QueryMap Map<String, String> options);
 }

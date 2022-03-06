@@ -15,10 +15,6 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -32,10 +28,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView balanceLevel;
     Button submitBtn;
     EditText addressBox;
+    TextView usdLevel;
 
     Process process = new Process();
     Convert convert = new Convert();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         scanButton = findViewById(R.id.scanQrBtn);
         addressLevel = findViewById(R.id.addressLevel);
         balanceLevel = findViewById(R.id.balanceLevel);
+        usdLevel = findViewById(R.id.usdBalanceLevel);
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,7 +61,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     getBalance(address);
                 }
                 else{
-                    showInfo("", "");
+                    showInfo();
+                    usdLevel.setText("");
                     Toast.makeText(MainActivity.this, "Invalid Address", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -73,31 +71,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         scanButton.setOnClickListener(this);
 
-    }
-
-    protected void showInfo(String address, String balance){
-        addressLevel.setText(address);
-        balanceLevel.setText(balance);
-    }
-
-    protected void getBalance(String address){
-        apiInterface = RetrofitInstance.getRetrofit().create(ApiInterface.class);
-
-        apiInterface.getBalance(process.getOptions(address)).enqueue(new Callback<PostPojo>() {
-            @Override
-            public void onResponse(Call<PostPojo> call, Response<PostPojo> response) {
-                addressBox.setText("");
-                PostPojo result = response.body();
-                String balance = result.getResult();
-                showInfo("Address: " + address, "Balance:\n\n"+ balance + " Wei\n" +String.format("%.18f", convert.fromWei(balance, Convert.Unit.ETHER)) + " Ether");
-            }
-
-            @Override
-            public void onFailure(Call<PostPojo> call, Throwable t) {
-                showInfo("", "");
-                Toast.makeText(MainActivity.this, "An error has occured", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     @Override
@@ -118,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if(result != null){
             if(result.getContents() == null){
-                showInfo("", "");
+                showInfo();
                 Toast.makeText(this, "Enter Valid Ethereum Address QR Code", Toast.LENGTH_SHORT).show();
             }
             else{
@@ -127,14 +100,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     getBalance(address);
                 }
                 else{
-                    showInfo("", "");
+                    showInfo();
                     Toast.makeText(this, "Enter Valid Ethereum Address QR Code", Toast.LENGTH_SHORT).show();
                 }
             }
         }
         else{
-            showInfo("", "");
+            showInfo();
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    protected void showInfo(String address, String wei, double eth){
+        addressLevel.setText("Address: " + address);
+        balanceLevel.setText("Balance:\n\n" + wei + " Wei\n\n" + String.format("%.18f",eth) + " ETH\n");
+        setUsdBalance(eth);
+    }
+
+    protected void showInfo(){
+        addressLevel.setText("");
+        balanceLevel.setText("");
+    }
+
+    protected void getBalance(String address){
+        apiInterface = RetrofitInstance.getRetrofit().create(ApiInterface.class);
+
+        apiInterface.getBalance(process.getOptions(address)).enqueue(new Callback<EtherPojo>() {
+            @Override
+            public void onResponse(Call<EtherPojo> call, Response<EtherPojo> response) {
+                addressBox.setText("");
+                EtherPojo result = response.body();
+                String wei = result.getResult();
+                double ethBalance = Double.parseDouble(String.format("%.18f", convert.fromWei(wei, Convert.Unit.ETHER)));
+                showInfo(address, wei, ethBalance);
+            }
+
+            @Override
+            public void onFailure(Call<EtherPojo> call, Throwable t) {
+                showInfo();
+                Toast.makeText(MainActivity.this, "An error has occured", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    protected void setUsdBalance(double abc){
+        apiInterface = RetrofitInstance.getRetrofit2().create(ApiInterface.class);
+
+        apiInterface.getCurrencyRate(process.getUsdOptions()).enqueue(new Callback<CurrencyPojo>() {
+            @Override
+            public void onResponse(Call<CurrencyPojo> call, Response<CurrencyPojo> response) {
+                CurrencyPojo result = response.body();
+                double usdBalance = result.getUSD() * abc;
+                usdLevel.setText(String.format("%.9f", usdBalance) + " USD");
+            }
+
+            @Override
+            public void onFailure(Call<CurrencyPojo> call, Throwable t) {
+                usdLevel.setText("");
+                Toast.makeText(MainActivity.this, "Usd option unavailable", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

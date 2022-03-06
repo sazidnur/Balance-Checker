@@ -23,6 +23,14 @@ public class Process {
         return options;
     }
 
+    public Map getUsdOptions(){
+        Map<String, String> options = new HashMap<>();
+        options.put("fsym", "ETH");
+        options.put("tsyms", "USD");
+
+        return options;
+    }
+
     public static boolean isValidAddress(String addr)
     {
         String regex = "^0x[0-9a-f]{40}$";
