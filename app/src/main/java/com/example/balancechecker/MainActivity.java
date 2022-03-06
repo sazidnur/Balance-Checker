@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Process process = new Process();
+        Convert convert = new Convert();
 
         Button submitBtn = findViewById(R.id.submitBtn);
         EditText addressBox = findViewById(R.id.addressBox);
@@ -51,9 +52,8 @@ public class MainActivity extends AppCompatActivity {
                             addressLevel.setText("Address: " + address);
 
                             PostPojo result = response.body();
-                            long balance = Long.parseLong(result.getResult());
-                            double eBalance = (balance*1.0)/1000000000000000000.0;
-                            balanceLevel.setText("Balance:\n\n"+ balance + " Wei\n" +String.format("%.18f", eBalance) + " Ether");
+                            String balance = result.getResult();
+                            balanceLevel.setText("Balance:\n\n"+ balance + " Wei\n" +String.format("%.18f", convert.fromWei(balance, Convert.Unit.ETHER)) + " Ether");
                         }
 
                         @Override
