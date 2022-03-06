@@ -3,6 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Balance-Checker/app/src/main/res/layout/activity_main.xml" value="0.358695652173913" />
+        <entry key="..\:/Balance-Checker/app/src/main/res/layout/activity_scanner.xml" value="0.358695652173913" />
         <entry key="..\:/Users/Sazid/AndroidStudioProjects/Balance-Checker/app/src/main/res/layout/activity_main.xml" value="0.27447916666666666" />
         <entry key="..\:/Users/Sazid/AndroidStudioProjects/BalanceChecker/app/src/main/res/layout/activity_main.xml" value="0.25" />
       </map>
