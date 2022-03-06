@@ -54,11 +54,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(process.isValidAddress(address) || process.isChecksumAddress(address)){
                     try {
                         InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);     //gifing keyboard after clicked on check button with valid address
                     } catch (Exception e) {
                         // TODO: handle exception
                     }
-                    getBalance(address);
+                    getBalance(address); //calling for ethereum balance after input valid address via keyboard
                 }
                 else{
                     showInfo();
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             else{
                 String address = result.getContents();
                 if(process.isValidAddress(address) || process.isChecksumAddress(address)){
-                    getBalance(address);
+                    getBalance(address); //calling for ethereum balance after scanning valid QR code
                 }
                 else{
                     showInfo();
@@ -114,14 +114,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void showInfo(String address, String wei, double eth){
         addressLevel.setText("Address: " + address);
         balanceLevel.setText("Balance:\n\n" + wei + " Wei\n\n" + String.format("%.18f",eth) + " ETH\n");
-        setUsdBalance(eth);
     }
 
+    //hiding already showed  balance after an invalid request
     protected void showInfo(){
         addressLevel.setText("");
         balanceLevel.setText("");
     }
 
+    //Getting ethereum balance
     protected void getBalance(String address){
         apiInterface = RetrofitInstance.getRetrofit().create(ApiInterface.class);
 
@@ -133,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String wei = result.getResult();
                 double ethBalance = Double.parseDouble(String.format("%.18f", convert.fromWei(wei, Convert.Unit.ETHER)));
                 showInfo(address, wei, ethBalance);
+                setUsdBalance(ethBalance);
             }
 
             @Override
@@ -143,14 +145,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    protected void setUsdBalance(double abc){
+    //getting equivalent USD balance
+    protected void setUsdBalance(double eth){
         apiInterface = RetrofitInstance.getRetrofit2().create(ApiInterface.class);
 
         apiInterface.getCurrencyRate(process.getUsdOptions()).enqueue(new Callback<CurrencyPojo>() {
             @Override
             public void onResponse(Call<CurrencyPojo> call, Response<CurrencyPojo> response) {
                 CurrencyPojo result = response.body();
-                double usdBalance = result.getUSD() * abc;
+                double usdBalance = result.getUSD() * eth;
                 usdLevel.setText(String.format("%.9f", usdBalance) + " USD");
             }
 
