@@ -19,3 +19,9 @@ and using crypto compare API for getting current rate of ethereum in USD
 
 ## API Documentation
 https://docs.etherscan.io/
+
+## Android environment
+- Compile SDK 31
+- Build tool 30.0.2
+- Android Gradle plugin 4.2.1
+- Gradle wrapper 6.8.3
