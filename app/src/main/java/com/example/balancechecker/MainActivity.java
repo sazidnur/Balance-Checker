@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 else{
                     showInfo();
                     usdLevel.setText("");
-                    Toast.makeText(MainActivity.this, "Invalid Address", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Invalid Address", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 else{
                     showInfo();
-                    Toast.makeText(this, "Enter Valid Ethereum Address QR Code", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Enter Valid Ethereum Address QR Code", Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onFailure(Call<EtherPojo> call, Throwable t) {
                 showInfo();
-                Toast.makeText(MainActivity.this, "An error has occured", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "An error has occured", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -153,14 +153,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onResponse(Call<CurrencyPojo> call, Response<CurrencyPojo> response) {
                 CurrencyPojo result = response.body();
-                double usdBalance = result.getUSD() * eth;
-                usdLevel.setText(String.format("%.9f", usdBalance) + " USD");
+                double rate = result.getUSD();
+                double usdBalance = rate * eth;
+                usdLevel.setText(String.format("%.9f", usdBalance) + " USD (Rate: " + rate + "$)");
             }
 
             @Override
             public void onFailure(Call<CurrencyPojo> call, Throwable t) {
                 usdLevel.setText("");
-                Toast.makeText(MainActivity.this, "Usd option unavailable", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Usd option unavailable", Toast.LENGTH_LONG).show();
             }
         });
     }
