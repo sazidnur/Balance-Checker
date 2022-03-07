@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button submitBtn;
     EditText addressBox;
     TextView usdLevel;
+    ProgressBar progressBar;
 
     Process process = new Process();
     Convert convert = new Convert();
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         addressLevel = findViewById(R.id.addressLevel);
         balanceLevel = findViewById(R.id.balanceLevel);
         usdLevel = findViewById(R.id.usdBalanceLevel);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,14 +54,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 String address = addressBox.getText().toString();
                 address = process.isItCoinBaseQr(address);
-                
+
                 if(process.isValidAddress(address) || process.isChecksumAddress(address)){
                     try {
                         InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);     //gifing keyboard after clicked on check button with valid address
+                        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);     //hiding keyboard after clicked on check button with valid address
                     } catch (Exception e) {
-                        // TODO: handle exception
+                        // handle exception
                     }
+                    hideInfo();
+                    progressBar.setVisibility(View.VISIBLE);
                     getBalance(address); //calling for ethereum balance after input valid address via keyboard
                 }
                 else{
@@ -66,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     usdLevel.setText("");
                     Toast.makeText(MainActivity.this, "Invalid Address", Toast.LENGTH_LONG).show();
                 }
+
             }
         });
 
@@ -99,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String address = result.getContents();
                 address = process.isItCoinBaseQr(address);
                 if(process.isValidAddress(address) || process.isChecksumAddress(address)){
+                    hideInfo();
+                    progressBar.setVisibility(View.VISIBLE);
                     getBalance(address); //calling for ethereum balance after scanning valid QR code
                 }
                 else{
@@ -115,18 +123,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     protected void showInfo(String address, String wei, double eth){
+        progressBar.setVisibility(View.GONE);
         addressLevel.setText("Address: " + address);
         balanceLevel.setText("Balance:\n\n" + wei + " Wei\n\n" + String.format("%.18f",eth) + " ETH\n");
     }
 
+    //method overloading
     //hiding already showed  balance after an invalid request
     protected void showInfo(){
+        progressBar.setVisibility(View.GONE);
+        addressLevel.setText("");
+        balanceLevel.setText("");
+    }
+
+    protected void hideInfo(){
+        usdLevel.setText("");
         addressLevel.setText("");
         balanceLevel.setText("");
     }
 
     //Getting ethereum balance
     protected void getBalance(String address){
+
         apiInterface = RetrofitInstance.getRetrofit().create(ApiInterface.class);
 
         apiInterface.getBalance(process.getOptions(address)).enqueue(new Callback<EtherPojo>() {
