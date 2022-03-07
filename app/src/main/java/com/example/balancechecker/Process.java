@@ -31,6 +31,14 @@ public class Process {
         return options;
     }
 
+    public static String isItCoinBaseQr(String addr){
+        if(addr.contains(":")){
+            String[] temp = addr.split(":");
+            return temp[1];
+        }
+        return addr;
+    }
+
     public static boolean isValidAddress(String addr)
     {
         String regex = "^0x[0-9a-f]{40}$";

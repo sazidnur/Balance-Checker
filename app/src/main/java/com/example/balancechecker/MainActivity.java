@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View v) {
 
                 String address = addressBox.getText().toString();
-
+                address = process.isItCoinBaseQr(address);
+                
                 if(process.isValidAddress(address) || process.isChecksumAddress(address)){
                     try {
                         InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
@@ -96,11 +97,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             else{
                 String address = result.getContents();
+                address = process.isItCoinBaseQr(address);
                 if(process.isValidAddress(address) || process.isChecksumAddress(address)){
                     getBalance(address); //calling for ethereum balance after scanning valid QR code
                 }
                 else{
                     showInfo();
+                    usdLevel.setText("");
                     Toast.makeText(this, "Enter Valid Ethereum Address QR Code", Toast.LENGTH_LONG).show();
                 }
             }
